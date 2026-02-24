@@ -8,6 +8,11 @@ import { DischargeTextViewer } from "@/components/discharge-text/discharge-text-
 import { PredictionPanel } from "@/components/predictions/prediction-panel";
 import { SimilarPatientsPanel } from "@/components/similar-patients/similar-patients-panel";
 import { ChunksSkeleton } from "@/components/shared/loading-skeleton";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 
 export function WorkspaceLayout() {
   const dischargeText = useCodingSessionStore((s) => s.dischargeText);
@@ -28,8 +33,8 @@ export function WorkspaceLayout() {
   return (
     <div className="flex h-screen flex-col">
       <WorkspaceHeader />
-      <div className="grid flex-1 grid-cols-[45fr_55fr] overflow-hidden">
-        <div className="border-r overflow-hidden">
+      <ResizablePanelGroup orientation="horizontal" className="flex-1">
+        <ResizablePanel defaultSize={45} minSize={25}>
           {predictionResult ? (
             prediction.isPending ? (
               <ChunksSkeleton />
@@ -42,17 +47,24 @@ export function WorkspaceLayout() {
               isLoading={prediction.isPending}
             />
           )}
-        </div>
+        </ResizablePanel>
 
-        <div className="grid grid-rows-[3fr_2fr] overflow-hidden">
-          <div className="overflow-hidden border-b">
-            <PredictionPanel isLoading={prediction.isPending} />
-          </div>
-          <div className="overflow-hidden">
-            <SimilarPatientsPanel />
-          </div>
-        </div>
-      </div>
+        <ResizableHandle withHandle />
+
+        <ResizablePanel defaultSize={55} minSize={30}>
+          <ResizablePanelGroup orientation="vertical">
+            <ResizablePanel defaultSize={60} minSize={20}>
+              <PredictionPanel isLoading={prediction.isPending} />
+            </ResizablePanel>
+
+            <ResizableHandle withHandle />
+
+            <ResizablePanel defaultSize={40} minSize={15}>
+              <SimilarPatientsPanel />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 }

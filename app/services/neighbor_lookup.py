@@ -1,7 +1,3 @@
-import numpy as np
-
-from icd_hybrid.data.text_preprocessor import normalize_clinical_text
-
 from app.dependencies import AppState
 from app.schemas import (
     SimilarPatientsRequest,
@@ -15,19 +11,16 @@ def find_similar_patients_per_code(
     state: AppState,
     request: SimilarPatientsRequest,
 ) -> SimilarPatientsResponse:
-    text_clean = normalize_clinical_text(request.text, handle_phi=True)
+    chunk_embs, n_chunks = state.predictor.encode_chunks(request.text)
 
-    chunks = state.predictor.chunker.chunk(text_clean, state.predictor.encoder.tokenizer)
-    chunks = chunks[:state.predictor.max_chunks]
+    best_by_idx = {}
+    for i in range(n_chunks):
+        for n in state.predictor.knn.get_neighbors(chunk_embs[i], k=request.neighbor_count):
+            prev = best_by_idx.get(n.index)
+            if prev is None or n.similarity > prev.similarity:
+                best_by_idx[n.index] = n
 
-    chunk_embeddings = state.predictor.encoder.encode(
-        chunks, batch_size=32, show_progress=False
-    )
-    mean_embedding = np.mean(chunk_embeddings, axis=0)
-
-    neighbors = state.predictor.knn.get_neighbors(
-        mean_embedding, k=request.neighbor_count
-    )
+    neighbors = sorted(best_by_idx.values(), key=lambda n: n.similarity, reverse=True)
 
     target_codes = request.codes
     if not target_codes:

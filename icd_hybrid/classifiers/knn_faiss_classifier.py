@@ -242,6 +242,55 @@ class KNNFAISSClassifier(BaseClassifier):
 
         return scores
 
+    def predict_scores_batch_chunks(
+        self,
+        chunk_embeddings: np.ndarray,
+        chunk_counts: np.ndarray,
+        code_list: list[str],
+    ) -> np.ndarray:
+        n_docs, max_chunks, dim = chunk_embeddings.shape
+        code_to_idx = {code: i for i, code in enumerate(code_list)}
+        n_codes = len(code_list)
+        scores = np.zeros((n_docs, n_codes), dtype=np.float32)
+
+        flat_chunks = chunk_embeddings.reshape(-1, dim).astype(np.float32)
+        flat_chunks = self._normalize(flat_chunks)
+
+        similarities, indices = self.index.search(flat_chunks, self.config.n_neighbors)
+
+        for doc_idx in range(n_docs):
+            n_chunks = int(chunk_counts[doc_idx])
+            chunk_scores = np.zeros((n_chunks, n_codes), dtype=np.float32)
+
+            for c in range(n_chunks):
+                flat_idx = doc_idx * max_chunks + c
+                total_sim = 0.0
+                code_sims: dict[int, float] = {}
+
+                for j in range(self.config.n_neighbors):
+                    idx = indices[flat_idx, j]
+                    sim = similarities[flat_idx, j]
+                    if idx == -1:
+                        continue
+                    total_sim += sim
+                    row = self.labels.getrow(idx)
+                    neighbor_code_count = row.nnz
+                    for code_idx in row.indices:
+                        if code_idx not in code_sims:
+                            code_sims[code_idx] = 0.0
+                        code_sims[code_idx] += sim / neighbor_code_count
+
+                if total_sim > 0:
+                    for code_idx, sim_sum in code_sims.items():
+                        code = self.code_names[code_idx]
+                        if code in code_to_idx:
+                            chunk_scores[c, code_to_idx[code]] = sim_sum / total_sim
+
+            if n_chunks > 0:
+                scores[doc_idx] = chunk_scores.max(axis=0)
+
+        return scores
+
     def get_neighbor_explanation(
         self, embedding: np.ndarray, max_neighbors: int = 5
     ) -> str:

@@ -20,7 +20,7 @@ export function DischargeTextInput({
   const canAnalyze = dischargeText.trim().length >= 50 && !isLoading;
 
   return (
-    <div className="flex h-full flex-col gap-3 p-4">
+    <div className="flex h-full flex-col gap-3 overflow-hidden p-4">
       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         <FileText className="h-4 w-4" />
         DISCHARGE SUMMARY
@@ -29,7 +29,7 @@ export function DischargeTextInput({
         placeholder="Paste discharge summary text here (minimum 50 characters)..."
         value={dischargeText}
         onChange={(e) => setDischargeText(e.target.value)}
-        className="flex-1 resize-none font-mono text-sm"
+        className="min-h-0 flex-1 resize-none overflow-auto font-mono text-sm"
       />
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">

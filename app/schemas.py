@@ -41,6 +41,8 @@ class DetailedPredictionResponse(BaseModel):
     prediction_count: int
     chunk_count: int
     chunk_texts: list[str]
+    original_text: str
+    chunk_char_spans: list[tuple[int, int]]
 
 
 class SimilarPatient(BaseModel):

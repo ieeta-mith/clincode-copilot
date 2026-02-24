@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { HealthIndicator } from "@/components/shared/health-indicator";
-import { CodeSearchDialog } from "@/components/code-search/code-search-dialog";
 import { useCodingSessionStore } from "@/stores/coding-session-store";
 import { Stethoscope, Trash2 } from "lucide-react";
 
@@ -17,7 +16,6 @@ export function WorkspaceHeader() {
         <h1 className="text-lg font-semibold">ClinCode Copilot</h1>
       </div>
       <div className="flex items-center gap-3">
-        <CodeSearchDialog />
         <HealthIndicator />
         {predictionResult && (
           <Button variant="ghost" size="sm" onClick={clearSession}>

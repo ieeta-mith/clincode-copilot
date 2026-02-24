@@ -64,4 +64,6 @@ def run_detailed_prediction(
         prediction_count=len(predictions),
         chunk_count=raw_result["n_chunks"],
         chunk_texts=raw_result["chunk_texts"],
+        original_text=raw_result["original_text"],
+        chunk_char_spans=raw_result["chunk_char_spans"],
     )

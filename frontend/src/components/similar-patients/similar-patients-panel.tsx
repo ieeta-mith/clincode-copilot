@@ -26,7 +26,7 @@ export function SimilarPatientsPanel() {
   const neighbors = data?.per_code_neighbors?.[0];
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col overflow-hidden">
       <div className="flex items-center gap-2 border-b px-4 py-3 text-sm font-medium text-muted-foreground">
         <Users className="h-4 w-4" />
         SIMILAR PATIENTS
@@ -48,7 +48,7 @@ export function SimilarPatientsPanel() {
           No similar patients found for {selectedCode}.
         </div>
       ) : (
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="space-y-2 p-4">
             {neighbors.similar_patients.map((patient, i) => (
               <SimilarPatientCard key={i} patient={patient} />

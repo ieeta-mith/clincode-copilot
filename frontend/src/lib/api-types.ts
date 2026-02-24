@@ -38,6 +38,8 @@ export interface DetailedPredictionResponse {
   prediction_count: number;
   chunk_count: number;
   chunk_texts: string[];
+  original_text: string;
+  chunk_char_spans: [number, number][];
 }
 
 export interface SimilarPatient {

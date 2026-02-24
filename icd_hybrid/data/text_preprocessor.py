@@ -3,7 +3,7 @@ from typing import Optional
 
 
 PHI_PATTERN = re.compile(r"\[\*\*[^\]]*\*\*\]")
-MULTIPLE_SPACES = re.compile(r"\s+")
+HORIZONTAL_WHITESPACE = re.compile(r"[^\S\n]+")
 MULTIPLE_NEWLINES = re.compile(r"\n{3,}")
 
 
@@ -12,7 +12,7 @@ def handle_phi_tokens(text: str, replacement: str = "[PHI]") -> str:
 
 
 def normalize_whitespace(text: str) -> str:
-    text = MULTIPLE_SPACES.sub(" ", text)
+    text = HORIZONTAL_WHITESPACE.sub(" ", text)
     text = MULTIPLE_NEWLINES.sub("\n\n", text)
     return text.strip()
 

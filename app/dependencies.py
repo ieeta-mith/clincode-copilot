@@ -20,6 +20,8 @@ class AppState:
             model_dir=str(settings.model_dir),
             device=settings.device,
             max_chunks=settings.max_chunks,
+            max_length=settings.max_length,
+            chunk_overlap=settings.chunk_overlap,
         )
 
         icd_dictionary = ICDDictionaryService.load(settings.icd_dictionary_path)
