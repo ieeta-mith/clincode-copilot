@@ -76,7 +76,13 @@ Clinical decision support systems (CDSS) have evolved from rule-based expert sys
 
 \subsection{Overview}
 
-ClinCode Copilot follows a client-server architecture with a clear separation between the ML inference backend and the interactive frontend. A discharge summary enters the system through the frontend text input, is transmitted to the backend API, preprocessed and segmented into overlapping chunks, encoded by a BERT model, scored by both a label attention classifier and a KNN retrieval module, and returned to the frontend where predictions are displayed alongside interactive attention highlighting and similar patient information. The full pipeline executes synchronously, enabling real-time interaction.
+ClinCode Copilot follows a client-server architecture with a clear separation between the ML inference backend and the interactive frontend (Fig.~\ref{fig:ui_overview}). A discharge summary enters the system through the frontend text input, is transmitted to the backend API, preprocessed and segmented into overlapping chunks, encoded by a BERT model, scored by both a label attention classifier and a KNN retrieval module, and returned to the frontend where predictions are displayed alongside interactive attention highlighting and similar patient information. The full pipeline executes synchronously, enabling real-time interaction.
+
+\begin{figure*}[t]
+\centerline{\includegraphics[width=0.95\textwidth]{figs/ui_overview.png}}
+\caption{ClinCode Copilot workspace after analyzing a discharge summary. Left panel: clinical text with amber attention highlighting for ICD code 42731 (Atrial fibrillation), showing which document sections support the prediction. Top-right panel: predicted ICD codes ranked by ensemble confidence score, with individual label attention (LA) and KNN component scores. Bottom-right panel: similar training patients for the selected code, with similarity percentages.}
+\label{fig:ui_overview}
+\end{figure*}
 
 \subsection{Backend}
 
@@ -104,7 +110,13 @@ Client state---the current discharge text, prediction results, and selected code
 
 The primary interpretability mechanism maps the label attention model's per-code attention weights back to the original document as a visual heat-map overlay. When a user selects a predicted code from the prediction panel, the system retrieves that code's attention weight distribution over the document's chunks. Each chunk's attention weight is mapped to the character span it covers in the original text using the offsets computed during chunking. Where chunks overlap (due to the 32-token overlap stride), the maximum attention weight is assigned to each character position.
 
-The resulting character-level weight array is segmented into contiguous spans of uniform weight, and each span is rendered with a background color whose intensity reflects the attention magnitude. The color scheme uses an amber hue (HSL 45\textdegree, 90\% saturation) with lightness and alpha modulated by the normalized weight: higher attention produces darker, more opaque highlighting. This section-level granularity---where each highlighted region corresponds to a contiguous 128-token chunk of the clinical note---is more actionable for clinical review than scattered token-level highlights, as it identifies coherent document sections (e.g., ``admission history,'' ``hospital course'') rather than individual words.
+The resulting character-level weight array is segmented into contiguous spans of uniform weight, and each span is rendered with a background color whose intensity reflects the attention magnitude. The color scheme uses an amber hue (HSL 45\textdegree, 90\% saturation) with lightness and alpha modulated by the normalized weight: higher attention produces darker, more opaque highlighting. This section-level granularity---where each highlighted region corresponds to a contiguous 128-token chunk of the clinical note---is more actionable for clinical review than scattered token-level highlights, as it identifies coherent document sections (e.g., ``admission history,'' ``hospital course'') rather than individual words. Fig.~\ref{fig:ui_attention} illustrates how selecting a different code (41401, Coronary atherosclerosis) shifts the attention highlighting to different document sections compared to Fig.~\ref{fig:ui_overview}.
+
+\begin{figure}[t]
+\centerline{\includegraphics[width=\columnwidth]{figs/ui_attention_cad.png}}
+\caption{Attention visualization for ICD code 41401 (Coronary atherosclerosis). Compared to code 42731 in Fig.~\ref{fig:ui_overview}, the attention distribution shifts to different document sections, demonstrating that each code attends to clinically relevant evidence.}
+\label{fig:ui_attention}
+\end{figure}
 
 \subsection{Similar patient retrieval}
 
